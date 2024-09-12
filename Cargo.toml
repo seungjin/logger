@@ -3,6 +3,10 @@ name = "my_logger"
 version = "0.1.0"
 edition = "2021"
 
+[[bin]]
+name = "logger"
+path = "src/main.rs"
+
 [dependencies]
 anyhow = "1"
 actix-web = "4"
