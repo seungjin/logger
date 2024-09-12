@@ -1,6 +1,4 @@
-use actix_web::{
-    get, post, web, App, HttpRequest, HttpResponse, HttpServer, Responder,
-};
+use actix_web::{get, post, web, App, HttpRequest, HttpResponse, HttpServer, Responder};
 use anyhow::{Error, Result};
 use libsql::{params, Builder};
 use std::env;
@@ -32,15 +30,21 @@ async fn root() -> impl Responder {
     HttpResponse::NotFound().body("nothing here")
 }
 
-#[post("/")]
-async fn receive(req: HttpRequest, req_body: String) -> impl Responder {
+#[post("/{tail:.*}")]
+async fn receive(req: HttpRequest, path: web::Path<String>, req_body: String) -> impl Responder {
+    let sender = match req.peer_addr() {
+        Some(val) => val.ip().to_string(),
+        None => "".to_string(),
+    };
+
+    let key = path.to_string();
     // Todo: Validate req_body - proper json.
+    let val = req_body;
 
     // Todo: Check Auth http header
     match req.headers().get("AUTHKEY") {
         Some(k) => {
-            if k.to_str().unwrap().to_string() != env::var("AUTHKEY").unwrap()
-            {
+            if k.to_str().unwrap().to_string() != env::var("AUTHKEY").unwrap() {
                 return HttpResponse::Unauthorized().body("Not Allowed");
                 ()
             }
@@ -49,11 +53,11 @@ async fn receive(req: HttpRequest, req_body: String) -> impl Responder {
     }
 
     // Todo: Store into turso sql
-    match record(req_body).await {
-        Ok(_) => HttpResponse::Ok().body("Thank you"),
+    match record(sender, key, val).await {
+        Ok(_) => HttpResponse::Ok().body("Thank you. Come again!\n"),
         Err(e) => {
             eprintln!("{:?}", e);
-            HttpResponse::InternalServerError().body("Something is wrong.")
+            HttpResponse::InternalServerError().body("Something is wrong.\n")
         }
     }
 }
@@ -66,7 +70,7 @@ async fn check_auth() -> Result<()> {
     Ok(())
 }
 
-async fn record(val: String) -> Result<()> {
+async fn record(sender: String, key: String, val: String) -> Result<()> {
     let url = env::var("LIBSQL_URL").expect("LIBSQL_URL must be set");
     let token = env::var("LIBSQL_TOKEN").unwrap_or_default();
 
@@ -74,16 +78,18 @@ async fn record(val: String) -> Result<()> {
     let conn = db.connect().unwrap();
 
     let mut stmt = conn
-        .prepare("INSERT INTO message (content) VALUES (?1)")
+        .prepare("INSERT INTO message (sender, key, value) VALUES (?1, ?2, ?3)")
         .await?;
-    stmt.execute([val]).await?;
+    stmt.execute([sender, key, val]).await?;
 
     Ok(())
 }
 
 /*
 CREATE TABLE message (
-  content TEXT,
+  sender TEXT,
+  key TEXT,
+  value TEXT,
   created_at DATETIME DEFAULT CURRENT_TIMESTAMP
 )
 */
