@@ -10,7 +10,7 @@ jobs:
     name: Build a container image
     runs-on: ubuntu-latest
     steps:
-      - uses: action/checkout@v4
+      - uses: actions/checkout@v4
 
       - name: set the build version (git hash)
         run: echo "BUILD_VERSION=$(git rev-parse --short $GITHUB_SHA)" >> $GITHUB_ENV
