@@ -16,7 +16,7 @@ jobs:
         run: echo "BUILD_VERSION=$(git rev-parse --short $GITHUB_SHA)" >> $GITHUB_ENV
 
       - name: login to Github Container Registry
-        uses: docker/login-action@v1
+        uses: docker/login-action@v3.3.0
         with:
           registry: ghcr.io
           username: ${{github.actor}}
