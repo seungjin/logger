@@ -1,6 +1,7 @@
 services:
   logger:
     image: ghcr.io/seungjin/logger:latest
+    container_name: logger
     build:
       dockerfile: Containerfile
     ports: 8000:8080
