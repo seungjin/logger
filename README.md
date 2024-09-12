@@ -18,7 +18,10 @@ free.gcp.seungjin.net / logger.seungjin.net
 
 ## How to call  
 ```consle
-# curl https://logger.seungjin.net --header "AUTHKEY: AUTHKEY_HERE" -d "{ \"hostname\": $(hostname), \"ip\": $(curl -s ifconfig.io), \"time\": $(date +%s) }"
+# curl https://logger.seungjin.net \
+  -H 'AUTHKEY: MY_AUTHKEY_HERE' \
+  -H 'Content-Type: application/json' \
+  -d $(echo "{\"hostname\": \"$(hostname)\", \"ip\": \"$(curl -s ifconfig.io)\"}" | jq -c)
 ```
 
 
