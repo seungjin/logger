@@ -32,12 +32,17 @@ async fn root() -> impl Responder {
 
 #[post("/{tail:.*}")]
 async fn receive(req: HttpRequest, path: web::Path<String>, req_body: String) -> impl Responder {
-    let sender = match req.peer_addr() {
-        Some(val) => val.ip().to_string(),
-        None => "".to_string(),
+    let sender = match req.headers().get("X-Forwarded-For") {
+        Some(ip) => ip.to_str().unwrap().to_string(),
+        None => match req.peer_addr() {
+            Some(val) => val.ip().to_string(),
+            None => "".to_string(),
+        },
     };
 
-    let key = path.to_string();
+    let mut key = "/".to_string();
+    key.push_str(path.as_str());
+
     // Todo: Validate req_body - proper json.
     let val = req_body;
 
