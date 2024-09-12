@@ -8,12 +8,18 @@ use std::env;
 #[actix_web::main]
 async fn main() -> std::io::Result<()> {
     // Todo: Check AUTHEY, LIBSQL_URL, LIBSQL_TOKEN is in .env.
-    env::var("LIBSQL_URL")
-        .unwrap_or(panic!("LIBSQL_URL needed to be set in environment"));
-    env::var("LIBSQL_TOKEN")
-        .unwrap_or(panic!("LIBSQL_TOKEN needed to be set in environment"));
-    env::var("LIBSQL_URL")
-        .unwrap_or(panic!("AUTHKEY needed to be set in environment"));
+
+    if env::var("LIBSQL_URL").is_err() {
+        panic!("LIBSQL_URL needed to be set in environment");
+    }
+
+    if env::var("LIBSQL_TOKEN").is_err() {
+        panic!("LIBSQL_TOKEN needed to be set in environment");
+    }
+
+    if env::var("AUTHKEY").is_err() {
+        panic!("AUTHKEY needed to be set in environment");
+    }
 
     HttpServer::new(|| App::new().service(root).service(receive))
         .bind(("0.0.0.0", 8080))?
