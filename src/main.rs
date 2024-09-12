@@ -32,6 +32,8 @@ async fn root() -> impl Responder {
 
 #[post("/{tail:.*}")]
 async fn receive(req: HttpRequest, path: web::Path<String>, req_body: String) -> impl Responder {
+    println!("{:?}", req);
+
     let sender = match req.headers().get("X-Forwarded-For") {
         Some(ip) => ip.to_str().unwrap().to_string(),
         None => match req.peer_addr() {
