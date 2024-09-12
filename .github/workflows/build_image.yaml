@@ -9,6 +9,7 @@ on:
       - Cargo.toml
       - Cargo.lock
       - Containerfile
+      - .github/**
 
 jobs:
   build_image:
