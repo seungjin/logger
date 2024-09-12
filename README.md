@@ -22,6 +22,11 @@ free.gcp.seungjin.net / logger.seungjin.net
   -H 'AUTHKEY: MY_AUTHKEY_HERE' \
   -H 'Content-Type: application/json' \
   -d $(echo "{\"hostname\": \"$(hostname)\", \"ip\": \"$(curl -s ifconfig.io)\"}" | jq -c)
+
+# curl "https://logger.seungjin.net/$(hostname -A | tr -d ' \n')/ip" \ 
+  -H 'AUTHKEY: MY_AUTHKEY_HERE' \
+  -H 'Content-Type: application/json' \
+  -d $(ip --json a)
 ```
 
 
