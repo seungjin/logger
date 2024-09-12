@@ -2,21 +2,18 @@ use actix_web::{
     get, post, web, App, HttpRequest, HttpResponse, HttpServer, Responder,
 };
 use anyhow::{Error, Result};
-use dotenv::dotenv;
 use libsql::{params, Builder};
 use std::env;
 
 #[actix_web::main]
 async fn main() -> std::io::Result<()> {
-    dotenv().ok();
-
     // Todo: Check AUTHEY, LIBSQL_URL, LIBSQL_TOKEN is in .env.
     env::var("LIBSQL_URL")
-        .unwrap_or(panic!("LIBSQL_URL needed in envorinment or .env file"));
+        .unwrap_or(panic!("LIBSQL_URL needed to be set in environment"));
     env::var("LIBSQL_TOKEN")
-        .unwrap_or(panic!("LIBSQL_TOKEN needed in environment or .env file"));
+        .unwrap_or(panic!("LIBSQL_TOKEN needed to be set in environment"));
     env::var("LIBSQL_URL")
-        .unwrap_or(panic!("AUTHKEY needed in environment or .env file"));
+        .unwrap_or(panic!("AUTHKEY needed to be set in environment"));
 
     HttpServer::new(|| App::new().service(root).service(receive))
         .bind(("0.0.0.0", 8080))?

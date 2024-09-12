@@ -1,0 +1,16 @@
+services:
+  logger:
+    image: ghcr.io/seungjin/logger:latest
+    build:
+      dockerfile: Containerfile
+    port: 8080:8000
+    restart: always
+    env_file:
+      - .env
+    #environment:
+    #  - LIBSQL_URL: "arsarsarsO"
+    #  - LIBSQL_URL: "arsars"
+    #  - LIBSQL_TOKEN: ${LIBSQL_TOKEN}
+    #  - AUTHKEY: ${AUTHKEY}
+    command: ./logger
+
