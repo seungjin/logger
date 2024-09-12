@@ -9,6 +9,9 @@ jobs:
   build_image:
     name: Build a container image
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
     steps:
       - uses: actions/checkout@v4
 
