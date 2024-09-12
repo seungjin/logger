@@ -25,7 +25,7 @@ jobs:
       - name: Build the Container image
         run: docker build . --file Containerfile --tag ghcr.io/seungjin/logger:${{ env.BUILD_VERSION }} -t ghcr.io/seungjin/logger:latest
 
-      - name: Push the Docker image with version number
+      - name: push the Docker image with version number
         run: |
           docker image push ghcr.io/seungjin/logger:${{ env.BUILD_VERSION }}
-          docker image push ghcr.io/seungjin/logger-latest
+          docker image push ghcr.io/seungjin/logger:latest
