@@ -10,6 +10,14 @@ use std::env;
 async fn main() -> std::io::Result<()> {
     dotenv().ok();
 
+    // Todo: Check AUTHEY, LIBSQL_URL, LIBSQL_TOKEN is in .env.
+    env::var("LIBSQL_URL")
+        .unwrap_or(panic!("LIBSQL_URL needed in envorinment or .env file"));
+    env::var("LIBSQL_TOKEN")
+        .unwrap_or(panic!("LIBSQL_TOKEN needed in environment or .env file"));
+    env::var("LIBSQL_URL")
+        .unwrap_or(panic!("AUTHKEY needed in environment or .env file"));
+
     HttpServer::new(|| App::new().service(root).service(receive))
         .bind(("0.0.0.0", 8080))?
         .run()
@@ -58,7 +66,7 @@ async fn check_auth() -> Result<()> {
 async fn record(val: String) -> Result<()> {
     let url = env::var("LIBSQL_URL").expect("LIBSQL_URL must be set");
     let token = env::var("LIBSQL_TOKEN").unwrap_or_default();
-    
+
     let db = Builder::new_remote(url, token).build().await?;
     let conn = db.connect().unwrap();
 
