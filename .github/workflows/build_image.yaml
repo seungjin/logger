@@ -23,7 +23,7 @@ jobs:
           password: ${{secrets.GITHUB_TOKEN}}
 
       - name: Build the Container image
-        run: docker build . --file Containerfile --tag ghcr.io/seungjin/logger:${{ env.BUILD_NAME }} -t ghcr.io/seungjin/logger:latest
+        run: docker build . --file Containerfile --tag ghcr.io/seungjin/logger:${{ env.BUILD_VERSION }} -t ghcr.io/seungjin/logger:latest
 
       - name: Push the Docker image with version number
         run: |
