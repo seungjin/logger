@@ -23,10 +23,16 @@ free.gcp.seungjin.net / logger.seungjin.net
   -H 'Content-Type: application/json' \
   -d $(echo "{\"hostname\": \"$(hostname)\", \"ip\": \"$(curl -s ifconfig.io)\"}" | jq -c)
 
-# curl "https://logger.seungjin.net/$(hostname -f | tr -d ' \n')/ip" \ 
+# curl "https://logger.seungjin.net/$(hostname -f | tr -d ' \n')/ipa" \ 
   -H 'AUTHKEY: MY_AUTHKEY_HERE' \
   -H 'Content-Type: application/json' \
   -d $(ip --json a)
+  
+# curl "https://logger.seungjin.net/$(hostname -f | tr -d ' \n')/myip" \
+  -H 'AUTHKEY: MY_AUTHKEY_HERE' \
+  -H 'Content-Type: application/json' \
+  -d "$(curl -s https://ifconfig.io/all.json)"
+   
 ```
 
 ## Database table schema  
