@@ -1,4 +1,6 @@
-use actix_web::{get, post, web, App, HttpRequest, HttpResponse, HttpServer, Responder};
+use actix_web::{
+    get, post, web, App, HttpRequest, HttpResponse, HttpServer, Responder,
+};
 use anyhow::{Error, Result};
 use libsql::{params, Builder};
 use std::env;
@@ -31,9 +33,11 @@ async fn root() -> impl Responder {
 }
 
 #[post("/{tail:.*}")]
-async fn receive(req: HttpRequest, path: web::Path<String>, req_body: String) -> impl Responder {
-    println!("{:?}", req);
-
+async fn receive(
+    req: HttpRequest,
+    path: web::Path<String>,
+    req_body: String,
+) -> impl Responder {
     let sender = match req.headers().get("X-Forwarded-For") {
         Some(ip) => ip.to_str().unwrap().to_string(),
         None => match req.peer_addr() {
@@ -51,7 +55,8 @@ async fn receive(req: HttpRequest, path: web::Path<String>, req_body: String) ->
     // Todo: Check Auth http header
     match req.headers().get("AUTHKEY") {
         Some(k) => {
-            if k.to_str().unwrap().to_string() != env::var("AUTHKEY").unwrap() {
+            if k.to_str().unwrap().to_string() != env::var("AUTHKEY").unwrap()
+            {
                 return HttpResponse::Unauthorized().body("Not Allowed");
                 ()
             }
@@ -85,7 +90,9 @@ async fn record(sender: String, key: String, val: String) -> Result<()> {
     let conn = db.connect().unwrap();
 
     let mut stmt = conn
-        .prepare("INSERT INTO message (sender, key, value) VALUES (?1, ?2, ?3)")
+        .prepare(
+            "INSERT INTO message (sender, key, value) VALUES (?1, ?2, ?3)",
+        )
         .await?;
     stmt.execute([sender, key, val]).await?;
 
