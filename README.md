@@ -29,6 +29,16 @@ free.gcp.seungjin.net / logger.seungjin.net
   -d $(ip --json a)
 ```
 
+## Database table schema  
+```sql
+CREATE TABLE message (
+  sender TEXT,
+  key TEXT,
+  value TEXT,
+  created_at DATETIME DEFAULT (strftime('%s', 'now'))
+)
+```
+
 
 
   

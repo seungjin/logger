@@ -98,12 +98,3 @@ async fn record(sender: String, key: String, val: String) -> Result<()> {
 
     Ok(())
 }
-
-/*
-CREATE TABLE message (
-  sender TEXT,
-  key TEXT,
-  value TEXT,
-  created_at DATETIME DEFAULT CURRENT_TIMESTAMP
-)
-*/
