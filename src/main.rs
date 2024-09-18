@@ -1,8 +1,7 @@
-use actix_web::{
-    get, post, web, App, HttpRequest, HttpResponse, HttpServer, Responder,
-};
+use actix_web::{get, post, web, App, HttpRequest, HttpResponse, HttpServer, Responder};
 use anyhow::{Error, Result};
 use libsql::{params, Builder};
+use serde::{Deserialize, Serialize};
 use std::env;
 
 #[actix_web::main]
@@ -17,10 +16,6 @@ async fn main() -> std::io::Result<()> {
         panic!("LIBSQL_TOKEN needed to be set in environment");
     }
 
-    if env::var("AUTHKEY").is_err() {
-        panic!("AUTHKEY needed to be set in environment");
-    }
-
     HttpServer::new(|| App::new().service(root).service(receive))
         .bind(("0.0.0.0", 8080))?
         .run()
@@ -33,11 +28,7 @@ async fn root() -> impl Responder {
 }
 
 #[post("/{tail:.*}")]
-async fn receive(
-    req: HttpRequest,
-    path: web::Path<String>,
-    req_body: String,
-) -> impl Responder {
+async fn receive(req: HttpRequest, path: web::Path<String>, req_body: String) -> impl Responder {
     let sender = match req.headers().get("X-Forwarded-For") {
         Some(ip) => ip.to_str().unwrap().to_string(),
         None => match req.peer_addr() {
@@ -55,8 +46,7 @@ async fn receive(
     // Todo: Check Auth http header
     match req.headers().get("AUTHKEY") {
         Some(k) => {
-            if k.to_str().unwrap().to_string() != env::var("AUTHKEY").unwrap()
-            {
+            if k.to_str().unwrap().to_string() != env::var("AUTHKEY").unwrap() {
                 return HttpResponse::Unauthorized().body("Not Allowed");
                 ()
             }
@@ -78,8 +68,20 @@ async fn validate_json(string_json: String) -> Result<()> {
     Ok(())
 }
 
-async fn check_auth() -> Result<()> {
-    Ok(())
+#[derive(Serialize, Deserialize, PartialEq, Debug)]
+struct AuthTable {
+    id: String,
+    key: String,
+}
+
+async fn check_auth(auth_key_string: String) -> Result<String> {
+    // Read auth.json
+
+    let path = "auth.yaml";
+    let data = fs::read_to_string(path).expect("Unable to read {}", path);
+    let res = serde_yaml::from_str(&data);
+
+    Ok("ars".to_string())
 }
 
 async fn record(sender: String, key: String, val: String) -> Result<()> {
@@ -90,9 +92,7 @@ async fn record(sender: String, key: String, val: String) -> Result<()> {
     let conn = db.connect().unwrap();
 
     let mut stmt = conn
-        .prepare(
-            "INSERT INTO message (sender, key, value) VALUES (?1, ?2, ?3)",
-        )
+        .prepare("INSERT INTO message (sender, key, value) VALUES (?1, ?2, ?3)")
         .await?;
     stmt.execute([sender, key, val]).await?;
 
