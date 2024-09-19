@@ -39,6 +39,7 @@ free.gcp.seungjin.net / logger.seungjin.net
 ```sql
 CREATE TABLE message (
   sender TEXT,
+  who TEXT,
   key TEXT,
   value TEXT,
   created_at DATETIME DEFAULT (strftime('%s', 'now'))

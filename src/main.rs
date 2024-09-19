@@ -1,8 +1,12 @@
-use actix_web::{get, post, web, App, HttpRequest, HttpResponse, HttpServer, Responder};
+use actix_web::{
+    get, post, web, App, HttpRequest, HttpResponse, HttpServer, Responder,
+};
 use anyhow::{Error, Result};
 use libsql::{params, Builder};
 use serde::{Deserialize, Serialize};
+use std::collections::HashMap;
 use std::env;
+use std::fs;
 
 #[actix_web::main]
 async fn main() -> std::io::Result<()> {
@@ -28,7 +32,11 @@ async fn root() -> impl Responder {
 }
 
 #[post("/{tail:.*}")]
-async fn receive(req: HttpRequest, path: web::Path<String>, req_body: String) -> impl Responder {
+async fn receive(
+    req: HttpRequest,
+    path: web::Path<String>,
+    req_body: String,
+) -> impl Responder {
     let sender = match req.headers().get("X-Forwarded-For") {
         Some(ip) => ip.to_str().unwrap().to_string(),
         None => match req.peer_addr() {
@@ -44,18 +52,20 @@ async fn receive(req: HttpRequest, path: web::Path<String>, req_body: String) ->
     let val = req_body;
 
     // Todo: Check Auth http header
-    match req.headers().get("AUTHKEY") {
+    let who = match req.headers().get("AUTHKEY") {
         Some(k) => {
-            if k.to_str().unwrap().to_string() != env::var("AUTHKEY").unwrap() {
+            let a = check_auth(k.to_str().unwrap().to_string()).await.unwrap();
+            if a.is_none() {
                 return HttpResponse::Unauthorized().body("Not Allowed");
-                ()
+            } else {
+                a.unwrap()
             }
         }
         _ => return HttpResponse::Unauthorized().body("Not Allowed"),
-    }
+    };
 
     // Todo: Store into turso sql
-    match record(sender, key, val).await {
+    match record(sender, who, key, val).await {
         Ok(_) => HttpResponse::Ok().body("Thank you. Come again!\n"),
         Err(e) => {
             eprintln!("{:?}", e);
@@ -68,23 +78,31 @@ async fn validate_json(string_json: String) -> Result<()> {
     Ok(())
 }
 
-#[derive(Serialize, Deserialize, PartialEq, Debug)]
-struct AuthTable {
-    id: String,
-    key: String,
-}
-
-async fn check_auth(auth_key_string: String) -> Result<String> {
+async fn check_auth(auth_key_string: String) -> Result<Option<String>> {
     // Read auth.json
 
     let path = "auth.yaml";
-    let data = fs::read_to_string(path).expect("Unable to read {}", path);
-    let res = serde_yaml::from_str(&data);
+    let data = fs::read_to_string(path)
+        .expect(format!("Unable to read {}", path).as_str());
+    //let res: Vec<HashMap<String, String>> = serde_yaml::from_str(&data)?;
 
-    Ok("ars".to_string())
+    let parsed: HashMap<String, String> = serde_yaml::from_str(&data)?;
+
+    for key in parsed.into_iter() {
+        if key.1 == auth_key_string {
+            return Ok(Some(key.0));
+        }
+    }
+
+    Ok(None)
 }
 
-async fn record(sender: String, key: String, val: String) -> Result<()> {
+async fn record(
+    sender: String,
+    who: String,
+    key: String,
+    val: String,
+) -> Result<()> {
     let url = env::var("LIBSQL_URL").expect("LIBSQL_URL must be set");
     let token = env::var("LIBSQL_TOKEN").unwrap_or_default();
 
@@ -92,9 +110,11 @@ async fn record(sender: String, key: String, val: String) -> Result<()> {
     let conn = db.connect().unwrap();
 
     let mut stmt = conn
-        .prepare("INSERT INTO message (sender, key, value) VALUES (?1, ?2, ?3)")
+        .prepare(
+            "INSERT INTO message (sender, who, key, value) VALUES (?1, ?2, ?3, ?4)",
+        )
         .await?;
-    stmt.execute([sender, key, val]).await?;
+    stmt.execute([sender, who, key, val]).await?;
 
     Ok(())
 }

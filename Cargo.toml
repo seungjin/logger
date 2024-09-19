@@ -10,5 +10,6 @@ path = "src/main.rs"
 [dependencies]
 anyhow = "1"
 actix-web = "4"
+serde = "1"
 serde_yaml = "0.9"
 libsql = "0.5"
