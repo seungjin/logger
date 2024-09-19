@@ -5,6 +5,8 @@ services:
     build:
       dockerfile: Containerfile
     ports: 8000:8080
+    volumes:
+      - ~/apps/logger/auth.yaml:/app/auth.yaml:z
     restart: always
     env_file: .env
     command: ./logger
