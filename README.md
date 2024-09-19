@@ -35,6 +35,15 @@ free.gcp.seungjin.net / logger.seungjin.net
    
 ```
 
+## auth.yaml samlep   
+```
+# cat auth.yaml
+---
+general: THIS+IS+MY+KEY+FOR+GENERAL
+app1: THIS+IS+KEY+FOR+APP1
+
+```
+
 ## Database table schema  
 ```sql
 CREATE TABLE message (
