@@ -35,7 +35,7 @@ free.gcp.seungjin.net / logger.seungjin.net
    
 ```
 
-## auth.yaml samlep   
+## auth.yaml sample   
 ```
 # cat auth.yaml
 ---
