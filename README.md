@@ -15,8 +15,10 @@ Currently being serviced at https://logger.seungjin.net
 free.gcp.seungjin.net / logger.seungjin.net  
 /home/seungjin/apps/logger  
 
+## Client  
+<https://github.com/seungjin/logger-client>
 
-## How to call  
+## How to call with Curl  
 ```consle
 # curl https://logger.seungjin.net \
   -H 'AUTHKEY: MY_AUTHKEY_HERE' \
